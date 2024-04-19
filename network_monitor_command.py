@@ -44,62 +44,64 @@ def worker(stop_event: threading.Event) -> None:
         # Which service to check
         # service = "http"
         if service == "http":
-            {
-            # # HTTP/HTTPS Usage Examples
-            # print("\nHTTP/HTTPS Examples:")
-            # http_url = "http://example.com"
-            # http_server_status, http_server_response_code = check_server_http(http_url)
-            # print(f"HTTP URL: {http_url}, HTTP server status: {http_server_status}, Status Code: {http_server_response_code if http_server_response_code is not None else 'N/A'}")
-            }
+            # HTTP/HTTPS Usage Examples
+            print("\nHTTP/HTTPS Examples:")
+            http_url = "http://example.com"
+            http_server_status, http_server_response_code = check_server_http(http_url)
+            print(f"HTTP URL: {http_url}, HTTP server status: {http_server_status}, Status Code: {http_server_response_code if http_server_response_code is not None else 'N/A'}")
 
 
         if service == "https":
-            {
-            # https_url = "https://example.com"
-            # https_server_status, https_server_response_code, description = check_server_https(https_url)
-            # print(f"HTTPS URL: {https_url}, HTTPS server status: {https_server_status}, Status Code: {https_server_response_code if https_server_response_code is not None else 'N/A'}, Description: {description}")
-            }
+            https_url = "https://example.com"
+            https_server_status, https_server_response_code, description = check_server_https(https_url)
+            print(f"HTTPS URL: {https_url}, HTTPS server status: {https_server_status}, Status Code: {https_server_response_code if https_server_response_code is not None else 'N/A'}, Description: {description}")
 
 
 
 
+        if service == "ntp":
+            # NTP Usage Example
+            print("\nNTP Example:")
+            ntp_server = 'pool.ntp.org'  # Replace with your NTP server
+            ntp_server_status, ntp_server_time = check_ntp_server(ntp_server)
+            print(f"{ntp_server} is up. Time: {ntp_server_time}" if ntp_server_status else f"{ntp_server} is down.")
 
-        # # NTP Usage Example
-        # print("\nNTP Example:")
-        # ntp_server = 'pool.ntp.org'  # Replace with your NTP server
-        # ntp_server_status, ntp_server_time = check_ntp_server(ntp_server)
-        # print(f"{ntp_server} is up. Time: {ntp_server_time}" if ntp_server_status else f"{ntp_server} is down.")
+        if service == "dns":
+            # DNS Usage Examples
+            print("\nDNS Examples:")
+            dns_server = "8.8.8.8" # Google's public DNS server
 
-        # # DNS Usage Examples
-        # print("\nDNS Examples:")
-        # dns_server = "8.8.8.8" # Google's public DNS server
+            dns_queries = [
+                ('google.com', 'A'),        # IPv4 Address
+                ('google.com', 'MX'),       # Mail Exchange
+                ('google.com', 'AAAA'),     # IPv6 Address
+                ('google.com', 'CNAME'),    # Canonical Name
+                ('yahoo.com', 'A'),         # IPv4 Address
+            ]
 
-        # dns_queries = [
-        #     ('google.com', 'A'),        # IPv4 Address
-        #     ('google.com', 'MX'),       # Mail Exchange
-        #     ('google.com', 'AAAA'),     # IPv6 Address
-        #     ('google.com', 'CNAME'),    # Canonical Name
-        #     ('yahoo.com', 'A'),         # IPv4 Address
-        # ]
-
-        # for dns_query, dns_record_type in dns_queries:
-        #     dns_server_status, dns_query_results = check_dns_server_status(dns_server, dns_query, dns_record_type)
-        #     print(f"DNS Server: {dns_server}, Status: {dns_server_status}, {dns_record_type} Records Results: {dns_query_results}")
+            for dns_query, dns_record_type in dns_queries:
+                dns_server_status, dns_query_results = check_dns_server_status(dns_server, dns_query, dns_record_type)
+                print(f"DNS Server: {dns_server}, Status: {dns_server_status}, {dns_record_type} Records Results: {dns_query_results}")
 
 
-        # # TCP Port Usage Example
-        # print("\nTCP Port Example:")
-        # tcp_port_server = "google.com"
-        # tcp_port_number = 80
-        # tcp_port_status, tcp_port_description = check_tcp_port(tcp_port_server, tcp_port_number)
-        # print(f"Server: {tcp_port_server}, TCP Port: {tcp_port_number}, TCP Port Status: {tcp_port_status}, Description: {tcp_port_description}")
 
-        # # UDP Port Usage Example
-        # print("\nUDP Port Example:")
-        # udp_port_server = "8.8.8.8"
-        # udp_port_number = 53
-        # udp_port_status, udp_port_description = check_udp_port(udp_port_server, udp_port_number)
-        # print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
+
+        if service == "tcp":
+            # TCP Port Usage Example
+            print("\nTCP Port Example:")
+            tcp_port_server = "google.com"
+            tcp_port_number = 80
+            tcp_port_status, tcp_port_description = check_tcp_port(tcp_port_server, tcp_port_number)
+            print(f"Server: {tcp_port_server}, TCP Port: {tcp_port_number}, TCP Port Status: {tcp_port_status}, Description: {tcp_port_description}")
+
+
+        if service == "udp":
+            # UDP Port Usage Example
+            print("\nUDP Port Example:")
+            udp_port_server = "8.8.8.8"
+            udp_port_number = 53
+            udp_port_status, udp_port_description = check_udp_port(udp_port_server, udp_port_number)
+            print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
 
 
 
