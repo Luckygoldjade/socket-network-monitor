@@ -19,6 +19,7 @@ import dns.exception
 from socket import gaierror
 from time import ctime
 from typing import Tuple, Optional, Any
+from timestamp_printing import timestamped_print
 
 
 def calculate_icmp_checksum(data: bytes) -> int:
@@ -196,7 +197,7 @@ def traceroute(host: str, max_hops: int = 30, pings_per_hop: int = 1, verbose: b
     for ttl in range(1, max_hops + 1):
         # Print verbose output if enabled.
         if verbose:
-            print(f"pinging {host} with ttl: {ttl}")
+            timestamped_print(f"pinging {host} with ttl: {ttl}")
 
         # List to store ping response times for the current TTL.
         ping_times = []
@@ -226,7 +227,7 @@ def traceroute(host: str, max_hops: int = 30, pings_per_hop: int = 1, verbose: b
 
         # Print the last entry in the results if verbose mode is enabled.
         if verbose and results:
-            print(f"\tResult: {results[-1]}")
+            timestamped_print(f"\tResult: {results[-1]}")
 
         # If the address of the response matches the target host, stop the traceroute.
         if addr and addr[0] == host:
@@ -451,7 +452,43 @@ def check_udp_port(ip_address: str, port: int, timeout: int = 3) -> tuple[bool, 
         return False, f"Failed to check UDP port {port} on {ip_address} due to an error: {e}"
 
 
+def check_udp_echo_client(server: str, port: int, message: str, timeout: int = 3) -> tuple[bool, str]:
+    """
+    Sends a UDP message to an echo server and checks if the server echoes the message back correctly.
 
+    Args:
+    server (str): The IP address or hostname of the UDP echo server.
+    port (int): The UDP port number of the echo server.
+    message (str): The message to send to the echo server.
+    timeout (int): The timeout duration in seconds for the socket operation. Default is 3 seconds.
+
+    Returns:
+    tuple: A tuple containing a boolean and a string.
+           The boolean is True if the server echoes the message correctly, False otherwise.
+           The string provides a description of the echo server status.
+    """
+
+    try:
+        # Create a socket object using the AF_INET address family (IPv4) and SOCK_DGRAM socket type (UDP).
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            # Set a timeout for the socket to avoid waiting indefinitely.
+            s.settimeout(timeout)
+
+            # Send the message to the specified server and port.
+            s.sendto(message.encode(), (server, port))
+
+            # Receive the echoed message from the server.
+            data, addr = s.recvfrom(1024)
+
+            # Check if the received message matches the original message.
+            if data.decode() == message:
+                return True, f"UDP echo server at {server}:{port} echoed the message correctly."
+            else:
+                return False, f"UDP echo server at {server}:{port} did not echo the message correctly."
+
+    except Exception as e:
+        # Catch any exceptions and return a general failure message along with the exception raised.
+        return False, f"Failed to check UDP echo server at {server}:{port} due to an error: {e}"
 
 
 
