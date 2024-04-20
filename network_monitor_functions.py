@@ -339,7 +339,7 @@ def check_ntp_server(server: str) -> Tuple[bool, Optional[str]]:
         return False, None
 
 
-def check_dns_server_status(server, query, record_type) -> (bool, str):
+def check_dns_server_status(server, query, record_type) -> tuple[bool, str]:
     """
     Check if a DNS server is up and return the DNS query results for a specified domain and record type.
 
@@ -364,7 +364,7 @@ def check_dns_server_status(server, query, record_type) -> (bool, str):
         return False, str(e)
 
 
-def check_tcp_port(ip_address: str, port: int) -> (bool, str):
+def check_tcp_port(ip_address: str, port: int) -> tuple[bool, str]:
     """
     Checks the status of a specific TCP port on a given IP address.
 
@@ -406,7 +406,7 @@ def check_tcp_port(ip_address: str, port: int) -> (bool, str):
         return False, f"Failed to check port {port} on {ip_address} due to an error: {e}"
 
 
-def check_udp_port(ip_address: str, port: int, timeout: int = 3) -> (bool, str):
+def check_udp_port(ip_address: str, port: int, timeout: int = 3) -> tuple[bool, str]:
     """
     Checks the status of a specific UDP port on a given IP address.
 
