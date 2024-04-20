@@ -4,31 +4,35 @@
 import socket
 
 # my local IP address
-IP_Address = "test"
-Port = 10000
+IP_ADDRESS = "127.0.0.1"     # Localhost
+PORT = 10100
+
 
 def udp_echo_server():
     # Create a datagram UDP socket
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         # Bind the socket to the address and port
-        sock.bind(("IP_Address", Port))
-        print("UDP Echo Server started on port 10000")
+        sock.bind((IP_ADDRESS, PORT))
+        print("UDP Echo Server started on port ", PORT)
         # Listen for incoming messages
-        while True:
-            data, addr = sock.recvfrom(1024)
-            print(f"Received message: {data.decode()} from {addr}")
-            # Echo back the received message
-            sock.sendto(data, addr)
-            print(f"Sent message: {data.decode()} to {addr}")
+
+        try:
+            while True:
+                data, addr = sock.recvfrom(1024)
+                print(f"Received message: {data.decode()} from {addr}")
+                if data.decode() == "Goodbye":
+                    print("UDP Echo Server stopped")
+                    sock.close()
+                    break
+
+                # Echo back the received message
+                sock.sendto(data, addr)
+                print(f"Sent message: {data.decode()} to {addr}")
+
+        except KeyboardInterrupt:
+            print("UDP Echo Server stopped")
+            sock.close()
+
 
 if __name__ == "__main__":
     udp_echo_server()
-# Path: udp_echo_server.py
-
-
-
-
-
-
-
-
