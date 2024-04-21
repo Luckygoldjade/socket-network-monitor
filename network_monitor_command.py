@@ -20,33 +20,37 @@ def worker(stop_event: threading.Event) -> None:
     """
     # Fixed server list for testing
     # User defines which services to check for each server
-    # servers = [
-    #     {
-    #         "address": "192.168.1.1",
-    #         "services": ["HTTP", "HTTPS", "ICMP"]
-    #     },
-    #     {
-    #         "address": "www.example.com",
-    #         "services": ["DNS", "NTP", "TCP", "UDP"]
-    #     },
-    #     # add more servers as needed
-    # ]
-
-
     servers = [
         {
             "address": "8.8.8.8",
-            "services": ["ping", "ping"]
+            "services": ["ping", "icmp", "DNS"]
+        },
+
+        {
+            "address": "http://example.com",
+            "services": ["HTTP"]
+        },
+        {
+            "address": "https://example.com",
+            "services": ["HTTP"]
+        },
+
+        {
+            "address": "www.example.com",
+            "services": ["NTP", "TCP", "UDP"]
         },
         {
             "address": "127.0.0.1",
             "services": ["udp_echo_client", "udp_echo_client"]
         },
+
+
     ]
 
 
+
     while not stop_event.is_set():
-        print("Hello from the worker thread.")
+        timestamped_print("Hello from the worker thread.")
         # Add your network monitor tests here
 
         # Which service to check
@@ -56,49 +60,41 @@ def worker(stop_event: threading.Event) -> None:
         for server in servers:
             # Check each service for the current server
             for service in server["services"]:
-                if service == "ping":
+                if service.lower() == "ping" or service.lower() == "icmp":
                     # Ping Usage Example
-                    print("Ping Example:")
+                    timestamped_print("Ping Example:")
                     ping_addr, ping_time = ping(server["address"])
-                    print(f"Google DNS (ping): {ping_addr[0]} - {ping_time:.2f} ms" if (ping_addr and ping_time is not None) else "Google DNS (ping): Request timed out or no reply received")
+                    timestamped_print(f"Google DNS (ping): {ping_addr[0]} - {ping_time:.2f} ms" if (ping_addr and ping_time is not None) else "Google DNS (ping): Request timed out or no reply received")
 
-
-                elif service == "traceroute":
+                elif service.lower() == "traceroute":
                     # Traceroute Usage Example
                     # Note: This function is included as an extra to round out the ICMP examples.
-                    print("\nTraceroute Example:")
-                    print("Google DNS (traceroute):")
-                    print(traceroute(server["address"]))
+                    timestamped_print("\nTraceroute Example:")
+                    timestamped_print("Google DNS (traceroute):")
+                    timestamped_print(traceroute(server["address"]))
 
-
-
-
-                elif service == "http":
+                elif service.lower() == "http":
                     # HTTP/HTTPS Usage Examples
-                    print("\nHTTP/HTTPS Examples:")
+                    timestamped_print("\nHTTP/HTTPS Examples:")
                     http_url = server["address"]
                     http_server_status, http_server_response_code = check_server_http(http_url)
-                    print(f"HTTP URL: {http_url}, HTTP server status: {http_server_status}, Status Code: {http_server_response_code if http_server_response_code is not None else 'N/A'}")
+                    timestamped_print(f"HTTP URL: {http_url}, HTTP server status: {http_server_status}, Status Code: {http_server_response_code if http_server_response_code is not None else 'N/A'}")
 
-
-                elif service == "https":
+                elif service.lower() == "https":
                     https_url = server["address"]
                     https_server_status, https_server_response_code, description = check_server_https(https_url)
-                    print(f"HTTPS URL: {https_url}, HTTPS server status: {https_server_status}, Status Code: {https_server_response_code if https_server_response_code is not None else 'N/A'}, Description: {description}")
+                    timestamped_print(f"HTTPS URL: {https_url}, HTTPS server status: {https_server_status}, Status Code: {https_server_response_code if https_server_response_code is not None else 'N/A'}, Description: {description}")
 
-
-
-
-                elif service == "ntp":
+                elif service.lower() == "ntp":
                     # NTP Usage Example
-                    print("\nNTP Example:")
+                    timestamped_print("\nNTP Example:")
                     ntp_server = 'pool.ntp.org'  # Replace with your NTP server
                     ntp_server_status, ntp_server_time = check_ntp_server(ntp_server)
-                    print(f"{ntp_server} is up. Time: {ntp_server_time}" if ntp_server_status else f"{ntp_server} is down.")
+                    timestamped_print(f"{ntp_server} is up. Time: {ntp_server_time}" if ntp_server_status else f"{ntp_server} is down.")
 
-                elif service == "dns":
+                elif service.lower() == "dns":
                     # DNS Usage Examples
-                    print("\nDNS Examples:")
+                    timestamped_print("\nDNS Examples:")
                     dns_server = server["address"]  # Google's public DNS server
 
                     dns_queries = [
@@ -111,42 +107,31 @@ def worker(stop_event: threading.Event) -> None:
 
                     for dns_query, dns_record_type in dns_queries:
                         dns_server_status, dns_query_results = check_dns_server_status(dns_server, dns_query, dns_record_type)
-                        print(f"DNS Server: {dns_server}, Status: {dns_server_status}, {dns_record_type} Records Results: {dns_query_results}")
+                        timestamped_print(f"DNS Server: {dns_server}, Status: {dns_server_status}, {dns_record_type} Records Results: {dns_query_results}")
 
-
-
-
-                elif service == "tcp":
+                elif service.lower() == "tcp":
                     # TCP Port Usage Example
-                    print("\nTCP Port Example:")
+                    timestamped_print("\nTCP Port Example:")
                     tcp_port_server = server["address"]
                     tcp_port_number = 80
                     tcp_port_status, tcp_port_description = check_tcp_port(tcp_port_server, tcp_port_number)
-                    print(f"Server: {tcp_port_server}, TCP Port: {tcp_port_number}, TCP Port Status: {tcp_port_status}, Description: {tcp_port_description}")
+                    timestamped_print(f"Server: {tcp_port_server}, TCP Port: {tcp_port_number}, TCP Port Status: {tcp_port_status}, Description: {tcp_port_description}")
 
-
-                elif service == "udp":
+                elif service.lower() == "udp":
                     # UDP Port Usage Example
-                    print("\nUDP Port Example:")
+                    timestamped_print("\nUDP Port Example:")
                     udp_port_server = server["address"]
                     udp_port_number = 53
                     udp_port_status, udp_port_description = check_udp_port(udp_port_server, udp_port_number)
-                    print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
+                    timestamped_print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
 
-                elif service == "udp_echo_client":
+                elif service.lower() == "udp_echo_client":
                     # UDP Echo Client Talking
-                    print("\nUDP Echo Client Example:")
+                    timestamped_print("\nUDP Echo Client Example:")
                     udp_port_server = server["address"]
                     udp_port_number = 10100
                     udp_port_status, udp_port_description = check_udp_echo_client(udp_port_server, udp_port_number, "Hello from UDP Echo Client")
-                    print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
-
-
-
-
-
-
-
+                    timestamped_print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
 
         time.sleep(5)
 
@@ -189,7 +174,7 @@ def main() -> None:
 
 
                 if user_input == "exit":
-                    print("Exiting application...")
+                    timestamped_print("Exiting application...")
                     is_running = False
     finally:
         # Signal the worker thread to stop and wait for its completion
