@@ -1,3 +1,7 @@
+# Socket Programming - Project 1
+# CS372 Introduction to Networking
+# Tony Chan
+# Due 4/21/2024
 # Developed on Python 3.12.0
 # Requires the following packages:
 # pip install prompt-toolkit
@@ -12,6 +16,7 @@ from timestamp_printing import timestamped_print
 # include all network monitor functions here
 from network_monitor_functions import ping, traceroute, check_server_http, check_server_https, check_ntp_server, check_dns_server_status, check_tcp_port, check_udp_port, check_udp_echo_client
 
+
 # Worker thread function
 def worker(stop_event: threading.Event) -> None:
     """
@@ -23,117 +28,128 @@ def worker(stop_event: threading.Event) -> None:
     servers = [
         {
             "address": "8.8.8.8",
-            "services": ["ping", "icmp", "DNS"]
+            "services": ["ping", "icmp", "DNS"],
+            "interval": 60
         },
 
         {
             "address": "http://example.com",
-            "services": ["HTTP"]
+            "services": ["HTTP"],
+            "interval": 120
         },
         {
             "address": "https://example.com",
-            "services": ["HTTP"]
+            "services": ["HTTP"],
+            "interval": 180
         },
 
         {
             "address": "www.example.com",
-            "services": ["NTP", "TCP", "UDP"]
+            "services": ["NTP", "TCP", "UDP"],
+            "interval": 240
         },
         {
             "address": "127.0.0.1",
-            "services": ["udp_echo_client", "udp_echo_client"]
+            "services": ["udp_echo_client", "udp_echo_client"],
+            "interval": 300
         },
-
-
     ]
 
+    # Create and start a thread for each service
+    threads = []
+    for server in servers:
+        for service in server["services"]:
+            t = threading.Thread(target=check_service, args=(server["address"], service, server["interval"], stop_event))
+            threads.append(t)
+            t.start()
+
+    # Wait for all threads to complete
+    for t in threads:
+        t.join()
+
+    # Stop the worker thread
+    stop_event.set()
 
 
+def check_service(address: str, service: str, interval: int, stop_event: threading.Event) -> None:
+    """
+    Function to check a specific service for a given address at a specified interval.
+    """
     while not stop_event.is_set():
-        timestamped_print("Hello from the worker thread.")
-        # Add your network monitor tests here
+        if service.lower() == "ping" or service.lower() == "icmp":
+            # Ping Usage Example
+            timestamped_print("Ping Example:")
+            ping_addr, ping_time = ping(address)
+            timestamped_print(f"{address} (ping): {ping_addr[0]} - {ping_time:.2f} ms" if (ping_addr and ping_time is not None) else f"{address} (ping): Request timed out or no reply received")
 
-        # Which service to check
+        elif service.lower() == "traceroute":
+            # Traceroute Usage Example
+            # Note: This function is included as an extra to round out the ICMP examples.
+            timestamped_print("\nTraceroute Example:")
+            timestamped_print(f"{address} (traceroute):")
+            timestamped_print(traceroute(address))
 
+        elif service.lower() == "http":
+            # HTTP/HTTPS Usage Examples
+            timestamped_print("\nHTTP/HTTPS Examples:")
+            http_url = address
+            http_server_status, http_server_response_code = check_server_http(http_url)
+            timestamped_print(f"HTTP URL: {http_url}, HTTP server status: {http_server_status}, Status Code: {http_server_response_code if http_server_response_code is not None else 'N/A'}")
 
-        # Iterate over each server
-        for server in servers:
-            # Check each service for the current server
-            for service in server["services"]:
-                if service.lower() == "ping" or service.lower() == "icmp":
-                    # Ping Usage Example
-                    timestamped_print("Ping Example:")
-                    ping_addr, ping_time = ping(server["address"])
-                    timestamped_print(f"Google DNS (ping): {ping_addr[0]} - {ping_time:.2f} ms" if (ping_addr and ping_time is not None) else "Google DNS (ping): Request timed out or no reply received")
+        elif service.lower() == "https":
+            https_url = address
+            https_server_status, https_server_response_code, description = check_server_https(https_url)
+            timestamped_print(f"HTTPS URL: {https_url}, HTTPS server status: {https_server_status}, Status Code: {https_server_response_code if https_server_response_code is not None else 'N/A'}, Description: {description}")
 
-                elif service.lower() == "traceroute":
-                    # Traceroute Usage Example
-                    # Note: This function is included as an extra to round out the ICMP examples.
-                    timestamped_print("\nTraceroute Example:")
-                    timestamped_print("Google DNS (traceroute):")
-                    timestamped_print(traceroute(server["address"]))
+        elif service.lower() == "ntp":
+            # NTP Usage Example
+            timestamped_print("\nNTP Example:")
+            ntp_server = 'pool.ntp.org'  # Replace with your NTP server
+            ntp_server_status, ntp_server_time = check_ntp_server(ntp_server)
+            timestamped_print(f"{ntp_server} is up. Time: {ntp_server_time}" if ntp_server_status else f"{ntp_server} is down.")
 
-                elif service.lower() == "http":
-                    # HTTP/HTTPS Usage Examples
-                    timestamped_print("\nHTTP/HTTPS Examples:")
-                    http_url = server["address"]
-                    http_server_status, http_server_response_code = check_server_http(http_url)
-                    timestamped_print(f"HTTP URL: {http_url}, HTTP server status: {http_server_status}, Status Code: {http_server_response_code if http_server_response_code is not None else 'N/A'}")
+        elif service.lower() == "dns":
+            # DNS Usage Examples
+            timestamped_print("\nDNS Examples:")
+            dns_server = address  # Google's public DNS server
 
-                elif service.lower() == "https":
-                    https_url = server["address"]
-                    https_server_status, https_server_response_code, description = check_server_https(https_url)
-                    timestamped_print(f"HTTPS URL: {https_url}, HTTPS server status: {https_server_status}, Status Code: {https_server_response_code if https_server_response_code is not None else 'N/A'}, Description: {description}")
+            dns_queries = [
+                ('google.com', 'A'),        # IPv4 Address
+                ('google.com', 'MX'),       # Mail Exchange
+                ('google.com', 'AAAA'),     # IPv6 Address
+                ('google.com', 'CNAME'),    # Canonical Name
+                ('yahoo.com', 'A'),         # IPv4 Address
+            ]
 
-                elif service.lower() == "ntp":
-                    # NTP Usage Example
-                    timestamped_print("\nNTP Example:")
-                    ntp_server = 'pool.ntp.org'  # Replace with your NTP server
-                    ntp_server_status, ntp_server_time = check_ntp_server(ntp_server)
-                    timestamped_print(f"{ntp_server} is up. Time: {ntp_server_time}" if ntp_server_status else f"{ntp_server} is down.")
+            for dns_query, dns_record_type in dns_queries:
+                dns_server_status, dns_query_results = check_dns_server_status(dns_server, dns_query, dns_record_type)
+                timestamped_print(f"DNS Server: {dns_server}, Status: {dns_server_status}, {dns_record_type} Records Results: {dns_query_results}")
 
-                elif service.lower() == "dns":
-                    # DNS Usage Examples
-                    timestamped_print("\nDNS Examples:")
-                    dns_server = server["address"]  # Google's public DNS server
+        elif service.lower() == "tcp":
+            # TCP Port Usage Example
+            timestamped_print("\nTCP Port Example:")
+            tcp_port_server = address
+            tcp_port_number = 80
+            tcp_port_status, tcp_port_description = check_tcp_port(tcp_port_server, tcp_port_number)
+            timestamped_print(f"Server: {tcp_port_server}, TCP Port: {tcp_port_number}, TCP Port Status: {tcp_port_status}, Description: {tcp_port_description}")
 
-                    dns_queries = [
-                        ('google.com', 'A'),        # IPv4 Address
-                        ('google.com', 'MX'),       # Mail Exchange
-                        ('google.com', 'AAAA'),     # IPv6 Address
-                        ('google.com', 'CNAME'),    # Canonical Name
-                        ('yahoo.com', 'A'),         # IPv4 Address
-                    ]
+        elif service.lower() == "udp":
+            # UDP Port Usage Example
+            timestamped_print("\nUDP Port Example:")
+            udp_port_server = address
+            udp_port_number = 53
+            udp_port_status, udp_port_description = check_udp_port(udp_port_server, udp_port_number)
+            timestamped_print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
 
-                    for dns_query, dns_record_type in dns_queries:
-                        dns_server_status, dns_query_results = check_dns_server_status(dns_server, dns_query, dns_record_type)
-                        timestamped_print(f"DNS Server: {dns_server}, Status: {dns_server_status}, {dns_record_type} Records Results: {dns_query_results}")
+        elif service.lower() == "udp_echo_client":
+            # UDP Echo Client Talking
+            timestamped_print("\nUDP Echo Client Example:")
+            udp_port_server = address
+            udp_port_number = 10100
+            udp_port_status, udp_port_description = check_udp_echo_client(udp_port_server, udp_port_number, "Hello from UDP Echo Client")
+            timestamped_print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
 
-                elif service.lower() == "tcp":
-                    # TCP Port Usage Example
-                    timestamped_print("\nTCP Port Example:")
-                    tcp_port_server = server["address"]
-                    tcp_port_number = 80
-                    tcp_port_status, tcp_port_description = check_tcp_port(tcp_port_server, tcp_port_number)
-                    timestamped_print(f"Server: {tcp_port_server}, TCP Port: {tcp_port_number}, TCP Port Status: {tcp_port_status}, Description: {tcp_port_description}")
-
-                elif service.lower() == "udp":
-                    # UDP Port Usage Example
-                    timestamped_print("\nUDP Port Example:")
-                    udp_port_server = server["address"]
-                    udp_port_number = 53
-                    udp_port_status, udp_port_description = check_udp_port(udp_port_server, udp_port_number)
-                    timestamped_print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
-
-                elif service.lower() == "udp_echo_client":
-                    # UDP Echo Client Talking
-                    timestamped_print("\nUDP Echo Client Example:")
-                    udp_port_server = server["address"]
-                    udp_port_number = 10100
-                    udp_port_status, udp_port_description = check_udp_echo_client(udp_port_server, udp_port_number, "Hello from UDP Echo Client")
-                    timestamped_print(f"Server: {udp_port_server}, UDP Port: {udp_port_number}, UDP Port Status: {udp_port_status}, Description: {udp_port_description}")
-
-        time.sleep(5)
+        time.sleep(interval)
 
 
 # Main function
