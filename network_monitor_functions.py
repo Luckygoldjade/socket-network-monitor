@@ -121,8 +121,7 @@ def ping(host: str, ttl: int = 64, timeout: int = 1, sequence_number: int = 1) -
     Send an ICMP Echo Request to a specified host and measure the round-trip time.
 
     This function creates a raw socket to send an ICMP Echo Request packet to the given host.
-    It then waits for an Echo Reply, measuring the time taken for the round trip. If the
-    specified timeout is exceeded before receiving a reply, the function returns None for the ping time.
+    It then waits for an Echo Reply, measuring the time taken for the round trip. If the specified timeout is exceeded before receiving a reply, the function returns None for the ping time.
 
     Args:
     host (str): The IP address or hostname of the target host.
