@@ -18,12 +18,15 @@ This system includes three main components:
 ## Project Structure
 
 ```bash
-├── network_monitor_command.py       # Main app to monitor services
-├── UDP_echo_server.py               # Standalone echo server
-├── timestamp_printing.py            # Utility for time-stamped console output
-├── network_monitor_functions.py     # Custom service check functions
-├── requirements.txt                 # Python dependencies
-├── README.md                        # This file
+- Project root: socket-network-monitor/
+  - network_monitor_command.py       # Main app to monitor services
+  - UDP_echo_server.py               # Standalone echo server
+  - timestamp_printing.py            # Utility for time-stamped console output
+  - network_monitor_functions.py     # Custom service check functions
+  - requirements.txt                 # Python dependencies
+  - README.md                        # This file
+  - docs                             # Final report
+  -- screenshots
 ```
 
 ## Features
@@ -100,15 +103,17 @@ service_config = {
 ## Final Report
 
 For full implementation details, screenshots, and system behavior, refer to the final report:
-[Sockets_Project_1_042024_v01.pdf](docs/Sockets_Project_1_042024_v01.pdf)
+[Sockets Project 1 Final Report (PDF)](docs/Sockets_Project_1_042024_v01.pdf)
 
 ## Screenshots
 
-Located in `/docs/screenshots/` (if provided):
+Located in `docs/screenshots/`:
 
-- Service check with 1, 2, 3, 4, 5-minute intervals
-- Echo client/server message confirmations
-- Timestamped logging of network status
+- [UML client-server block diagram](docs/screenshots/1_UML_client-server_block_diagram.png)
+- [Network services output 1, 4, 5 minute time periods](docs/screenshots/8_output_1_4_5_min_time_per.png)
+- [User configurable IP address, services and time periods](docs/screenshots/10_user_config_ip_addr_services_time_per.png)
+
+More screenshots are available in final report.
 
 ## Technologies Used
 
