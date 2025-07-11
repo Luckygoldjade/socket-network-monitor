@@ -25,8 +25,8 @@ This system includes three main components:
   - network_monitor_functions.py     # Custom service check functions
   - requirements.txt                 # Python dependencies
   - README.md                        # This file
-  - docs                             # Final report
-  -- screenshots
+  - docs                             # Final report (PDF)
+    - screenshots                    # (PNG)
 ```
 
 ## Features
@@ -110,7 +110,7 @@ For full implementation details, screenshots, and system behavior, refer to the 
 Located in `docs/screenshots/`:
 
 - [UML client-server block diagram](docs/screenshots/1_UML_client-server_block_diagram.png)
-- [Network services output 1, 4, 5 minute time periods](docs/screenshots/8_output_1_4_5_min_time_per.png)
+- [Network monitor services output 1, 4, 5 minute time periods](docs/screenshots/8_output_1_4_5_min_time_per.png)
 - [User configurable IP address, services and time periods](docs/screenshots/10_user_config_ip_addr_services_time_per.png)
 
 More screenshots are available in final report.
